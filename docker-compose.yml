@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # Centralized Service Discovery (Consul)
+  consul:
+    image: hashicorp/consul:latest
+    container_name: consul_discovery
+    ports:
+      - "8500:8500"
+    command: "agent -dev -client=0.0.0.0"
+
+  # MongoDB Instance
+  mongodb:
+    image: mongo:latest
+    container_name: mern_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # User Microservice
+  user-service:
+    build: ./user-service
+    container_name: user_service
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_USERS
+      - CONSUL_HOST=consul
+    depends_on:
+      - mongodb
+      - consul
+
+  # Product Microservice
+  product-service:
+    build: ./product-service
+    container_name: product_service
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_PRODUCTS
+      - CONSUL_HOST=consul
+    depends_on:
+      - mongodb
+      - consul
+
+  # Order Microservice
+  order-service:
+    build: ./order-service
+    container_name: order_service
+    ports:
+      - "5002:5002"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_ORDERS
+      - CONSUL_HOST=consul
+    depends_on:
+      - mongodb
+      - consul
+
+  # Notification Microservice
+  notification-service:
+    build: ./notification-service
+    container_name: notification_service
+    ports:
+      - "5003:5003"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_NOTIFICATIONS
+      - CONSUL_HOST=consul
+    depends_on:
+      - mongodb
+      - consul
+
+  # Custom Express API Gateway
+  gateway:
+    build: ./gateway
+    container_name: express_gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+      - notification-service
+
+  # React Frontend Dashboard
+  frontend:
+    build: ./frontend
+    container_name: react_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway
+
+volumes:
+  mongo_data:
