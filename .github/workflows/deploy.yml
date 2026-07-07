@@ -52,8 +52,8 @@ jobs:
         docker build -t ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/express-gateway:latest ./gateway
         docker push ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/express-gateway:latest
 
-    # Step 8: Build and Push React Dashboard UI
+    # Step 8: Build and Push React Dashboard UI (With Injected Gateway IP Build Arg)
     - name: Build & Push Frontend UI
       run: |
-        docker build -t ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/react-frontend:latest ./frontend
+        docker build --build-arg REACT_APP_GATEWAY_URL="http://20.212.101.191:8080" -t ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/react-frontend:latest ./frontend
         docker push ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/react-frontend:latest

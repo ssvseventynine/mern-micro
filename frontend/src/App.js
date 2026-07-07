@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 // Single address pointing strictly to our Express Gateway tier
-const GATEWAY_URL = 'http://localhost:8080';
+const GATEWAY_URL = process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080';
 
 export default function App() {
   return (
@@ -125,7 +125,11 @@ function OrderProcessorModule() {
 
       {orders.length === 0 ? <p>Loading active purchases...</p> : (
         <ul>
-          {orders.map(o => <li key={o._id} style={{ marginBottom: '8px' }}>Item: {o.productName} | Qty: {o.quantity} -> <span style={styles.badge}>{o.status}</span></li>)}
+          {orders.map(o => (
+            <li key={o._id} style={{ marginBottom: '8px' }}>
+              Item: {o.productName} | Qty: {o.quantity} {'->'} <span style={styles.badge}>{o.status}</span>
+            </li>
+          ))}
         </ul>
       )}
     </div>
