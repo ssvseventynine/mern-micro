@@ -27,6 +27,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_USERS
       - CONSUL_HOST=consul
+      - SERVICE_ADDRESS=user-service
     depends_on:
       - mongodb
       - consul
@@ -40,6 +41,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_PRODUCTS
       - CONSUL_HOST=consul
+      - SERVICE_ADDRESS=product-service
     depends_on:
       - mongodb
       - consul
@@ -53,6 +55,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_ORDERS
       - CONSUL_HOST=consul
+      - SERVICE_ADDRESS=order-service
     depends_on:
       - mongodb
       - consul
@@ -66,6 +69,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/MERN_MICRO_NOTIFICATIONS
       - CONSUL_HOST=consul
+      - SERVICE_ADDRESS=notification-service
     depends_on:
       - mongodb
       - consul
@@ -76,6 +80,11 @@ services:
     container_name: express_gateway
     ports:
       - "8080:8080"
+    environment:
+      - USER_SERVICE_URL=http://user-service:5000
+      - PRODUCT_SERVICE_URL=http://product-service:5001
+      - ORDER_SERVICE_URL=http://order-service:5002
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5003
     depends_on:
       - user-service
       - product-service

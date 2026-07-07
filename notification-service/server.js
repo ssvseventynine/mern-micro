@@ -7,9 +7,14 @@ app.use(express.json());
 
 const PORT = 5003;
 const SERVICE_ID = `notification-service-${PORT}`;
-const consul = new Consul({ host: '127.0.0.1', port: 8500 });
 
-mongoose.connect('mongodb://localhost:27017/MERN_MICRO_NOTIFICATIONS')
+// Placeholder arrangement for Consul Host
+const CONSUL_HOST = process.env.CONSUL_HOST || '127.0.0.1';
+const consul = new Consul({ host: CONSUL_HOST, port: 8500 });
+
+// Placeholder arrangement for MongoDB connection URI
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/MERN_MICRO_NOTIFICATIONS';
+mongoose.connect(MONGO_URI)
   .then(() => console.log('Notification DB Connected Successfully'))
   .catch(err => console.error(err));
 
@@ -33,13 +38,18 @@ app.get('/health', (req, res) => res.status(200).send('Notification Service is H
 
 app.listen(PORT, () => {
   console.log(`Notification Service running on port ${PORT}`);
+  
   consul.agent.service.register({
     id: SERVICE_ID,
     name: 'notification-service',
-    address: '127.0.0.1',
+    address: process.env.SERVICE_ADDRESS || '127.0.0.1',
     port: PORT,
-    check: { http: `http://127.0.0.1:${PORT}/health`, interval: '10s' }
+    check: { 
+      http: `http://${process.env.SERVICE_ADDRESS || '127.0.0.1'}:${PORT}/health`, 
+      interval: '10s' 
+    }
   }, (err) => {
-    if (!err) console.log('Registered notification-service with Consul.');
+    if (err) console.error('Consul registration failed:', err);
+    else console.log('Registered notification-service with Consul.');
   });
 });
